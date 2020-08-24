@@ -1,0 +1,12 @@
+# elm-package generated files
+elm-stuff
+# elm-repl generated files
+repl-temp-*
+
+node_modules
+
+# build
+main.js
+
+# generated json
+result.txt
