@@ -1,0 +1,16 @@
+{
+  "name": "chinese-quick-mapping",
+  "version": "1.0.0",
+  "repository": "git@github.com:chauchakching/chinese-quick-mapping.git",
+  "author": "chauchakching <chauchakching@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "elm-live src/Main.elm --open --start-page=custom.html -- --output=main.js",
+    "build": "elm make --output=dist/main.js src/Main.elm && cp custom.html dist/index.html",
+    "publish-gh-pages": "git checkout gh-pages && yarn build && cp dist/* . && git add . && git commit -m 'publish demo' && git push"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "gh-pages": "^3.1.0"
+  }
+}
