@@ -6,7 +6,6 @@ repl-temp-*
 node_modules
 
 # build
-main.js
 dist/
 
 # generated json
