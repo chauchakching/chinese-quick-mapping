@@ -1,6 +1,5 @@
 port module Main exposing (main)
 
-import Browser
 import Browser exposing (Document, UrlRequest)
 import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, pushUrl)
@@ -18,7 +17,6 @@ import Task exposing (attempt)
 import Url exposing (Url)
 import Url.Parser as UrlParser
 import Url.Parser.Query as UrlQuery
-import Url.Parser
 import QS
 
 main : Program Flags Model Msg
