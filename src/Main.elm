@@ -1,6 +1,9 @@
 port module Main exposing (main)
 
 import Browser
+import Browser exposing (Document, UrlRequest)
+import Browser.Dom exposing (focus)
+import Browser.Navigation exposing (Key, pushUrl)
 import Html exposing (Attribute, Html, h1, button, div, text, textarea)
 import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (value, class, classList, rows, placeholder)
@@ -12,14 +15,19 @@ import Maybe.Extra exposing (traverse)
 import List.Extra exposing (last)
 import List exposing (head)
 import Task exposing (attempt)
-import Browser.Dom exposing (focus)
+import Url exposing (Url)
+import Url.Parser as UrlParser
+import Url.Parser.Query as UrlQuery
+import Url.Parser
 
 main : Program Flags Model Msg
-main = Browser.element 
+main = Browser.application 
   { init = init
   , subscriptions = subscriptions
   , update = update
   , view = view 
+  , onUrlRequest = onUrlRequest
+  , onUrlChange = onUrlChange
   }
 
 type Msg = 
@@ -29,7 +37,9 @@ type Msg =
   | NoOp
 
 type alias Model = 
-  { count : Int
+  { key : Key
+  , url : Url
+  , count : Int
   , quick : Bool
   , content : String
   }
@@ -37,17 +47,28 @@ type alias Model =
 -- dummy flag
 type alias Flags = Bool
  
-init : Flags -> (Model, Cmd Msg)
-init quick = 
-  ( { count = 0
+init : Flags -> Url -> Key -> (Model, Cmd Msg)
+init quick url key = 
+  let
+      q = getTextFromUrl url
+  in
+  ( { key = key
+    , url = url
+    , count = 0
     , quick = quick
-    , content = "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。"
+    , content = Maybe.withDefault "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。" q
     }
   , focusTextarea
   )
 
 subscriptions : Model -> Sub Msg
 subscriptions _ = Sub.none
+
+onUrlRequest : UrlRequest -> Msg
+onUrlRequest _ = NoOp
+
+onUrlChange : Url -> Msg
+onUrlChange _ = NoOp
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
@@ -61,38 +82,47 @@ update msg model =
     NoOp -> (model, Cmd.none)
     
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model = 
-  div [classes ["container", "mx-auto", "px-4"]]
-    [ div [class "row"]
-      [ h1 [classes ["text-5xl", "text-center", "my-8", "sm:my-16"]] [text "速成查字"]
+  { title = "速成查字"
+  , body = 
+    [ div [classes ["container", "mx-auto", "px-4"]]
+        [ div [class "row"]
+          [ h1 [classes ["text-5xl", "text-center", "my-8", "sm:my-16"]] [text "速成查字"]
 
-      ]
-
-    , div [classes ["row"]]
-      [ div [classes ["flex", "flex-row", "justify-end", "mb-4"]]
-        [ div [classes ["flex-0", "w-20", "-mr-4"]] [topButton model.quick "速成" [class "rounded-l", onClick ClickedQuickMode]]
-        , div [classes ["flex-0", "w-20", "-mr-3"]] [topButton (not model.quick) "倉頡" [class "rounded-r", onClick ClickedNonQuickMode]]]
-      ]
-      
-    , div [class "row"] 
-      [ div [classes ["flex", "flex-col", "sm:flex-row", "items-stretch"]]
-        [ div [classes ["flex-1", "p-2", "border", "rounded-t", "sm:rounded-b"]] 
-          [ textarea [Html.Attributes.id "user-input", placeholder "輸入字句", value model.content, onInput Typing, rows 8, classes ["w-full", "outline-none", "resize-none"]] []
           ]
-        , div [classes ["flex-1", "p-2", "border-l", "border-r", "border-b", "sm:border-t", "rounded-b", "sm:rounded-t", "sm:ml-4", "flex", "content-start", "flex-wrap"]] (
-            model.content
-              |> String.toList
-              |> List.map (
-                chineseToParts model.quick >> (\(ch, parts) -> charBox ch parts)
+
+        , div [classes ["row"]]
+          [ div [classes ["flex", "flex-row", "justify-end", "mb-4"]]
+            [ div [classes ["flex-0", "w-20", "-mr-4"]] [topButton model.quick "速成" [class "rounded-l", onClick ClickedQuickMode]]
+            , div [classes ["flex-0", "w-20", "-mr-3"]] [topButton (not model.quick) "倉頡" [class "rounded-r", onClick ClickedNonQuickMode]]]
+          ]
+          
+        , div [class "row"] 
+          [ div [classes ["flex", "flex-col", "sm:flex-row", "items-stretch"]]
+            [ div [classes ["flex-1", "p-2", "border", "rounded-t", "sm:rounded-b"]] 
+              [ textarea [Html.Attributes.id "user-input", placeholder "輸入字句", value model.content, onInput Typing, rows 8, classes ["w-full", "outline-none", "resize-none"]] []
+              ]
+            , div [classes ["flex-1", "p-2", "border-l", "border-r", "border-b", "sm:border-t", "rounded-b", "sm:rounded-t", "sm:ml-4", "flex", "content-start", "flex-wrap"]] (
+                model.content
+                  |> String.toList
+                  |> List.map (
+                    chineseToParts model.quick >> (\(ch, parts) -> charBox ch parts)
+                  )
               )
-          )
+            ]
+          ]
         ]
-      ]
     ]
+  }
 
 -- no `select` porting from elm core yet
 port select : String -> Cmd msg
+
+getTextFromUrl : Url -> Maybe String
+getTextFromUrl url = url
+  |> UrlParser.parse (UrlParser.query (UrlQuery.string "q"))
+  |> Maybe.Extra.join
 
 focusTextarea : Cmd Msg
 focusTextarea  = Cmd.batch [attempt (\_ -> NoOp) (focus "user-input"), select "user-input"]
