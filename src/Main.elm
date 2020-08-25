@@ -76,11 +76,11 @@ view model =
       ]
       
     , div [class "row"] 
-      [ div [classes ["flex", "flex-row", "items-stretch"]]
-        [ div [classes ["flex-1", "p-2", "border", "rounded"]] 
+      [ div [classes ["flex", "flex-col", "sm:flex-row", "items-stretch"]]
+        [ div [classes ["flex-1", "p-2", "border", "rounded-t", "sm:rounded-b"]] 
           [ textarea [Html.Attributes.id "user-input", placeholder "輸入字句", value model.content, onInput Typing, rows 8, classes ["w-full", "outline-none", "resize-none"]] []
           ]
-        , div [classes ["flex-1", "p-2", "border", "rounded", "ml-4", "flex", "content-start", "flex-wrap" ]] (
+        , div [classes ["flex-1", "p-2", "border-l", "border-r", "border-b", "sm:border-t", "rounded-b", "sm:rounded-t", "sm:ml-4", "flex", "content-start", "flex-wrap"]] (
             model.content
               |> String.toList
               |> List.map (
