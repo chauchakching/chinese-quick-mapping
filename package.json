@@ -8,7 +8,7 @@
     "dev": "cp custom.html dist && elm-live src/Main.elm --open --dir=dist --start-page=custom.html -- --output=dist/main.js",
     "format": "elm-format src/Main.elm --yes",
     "build": "elm make --output=dist/main.js src/Main.elm && cp custom.html dist/index.html",
-    "publish-gh-pages": "git checkout gh-pages && git merge master --no-edit && yarn build && cp dist/* . && git add . && git commit -m 'publish demo' && git push && git checkout master"
+    "gh-pages-publish": "git checkout gh-pages && git merge master --no-edit && yarn build && cp dist/* . && git add . && git commit -m 'publish demo' && git push && git checkout master"
   },
   "dependencies": {},
   "devDependencies": {
