@@ -195,10 +195,6 @@ updateQuery k v url =
 
 focusTextarea : Cmd Msg
 focusTextarea =
-    let
-        kk =
-            log "focusTextarea" 123
-    in
     Cmd.batch [ attempt (\_ -> NoOp) (focus "user-input"), select "user-input" ]
 
 
