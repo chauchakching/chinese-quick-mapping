@@ -90,6 +90,7 @@ view model =
       ]
     ]
 
+-- no `select` porting from elm core yet
 port select : String -> Cmd msg
 
 focusTextarea : Cmd Msg
