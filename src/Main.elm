@@ -211,7 +211,7 @@ clearButton content extraHtmlAttributes =
         [ "text-center"
         , "block"
         , "border"
-        , "border-blue-500"
+        -- , "border-blue-500"
         , "rounded"
         , "py-1"
         , "px-4"
