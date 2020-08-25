@@ -1,56 +1,63 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, text, textarea, input)
+import Html exposing (Attribute, Html, h1, button, div, text, textarea, input)
 import Html.Events exposing (onClick, onInput)
-import Html.Attributes exposing (value, class, classList)
+import Html.Attributes exposing (value, class, classList, rows, placeholder)
 import Debug exposing (log)
 import ChineseQuickMapping exposing (chineseQuickMapping)
 import Dict
-import String exposing (split)
-import String exposing (join)
 import KeyToQuickUnit exposing (keyToQuickUnit)
 import Maybe.Extra exposing (traverse)
-import Html exposing (Attribute)
-import Html exposing (h1)
-import Html.Attributes exposing (rows)
 import List
 import Array.Extra exposing (zip)
 import List.Extra exposing (last)
 import List exposing (head)
+import Task exposing (attempt)
+import Browser.Dom exposing (Error, focus)
 
-main = Browser.sandbox { init = init, update = update, view = view }
+main = Browser.element { init = init, subscriptions = subscriptions, update = update, view = view }
 
 type Msg = 
   Typing String
   | ClickedQuickMode
   | ClickedNonQuickMode
+  | NoOp
 
 type alias Model = 
   { count : Int
   , quick : Bool
   , content : String
   }
- 
-init : Model
-init = 
-  { count = 0
-  , quick = True
-  , content = "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。"
-  }
 
-update : Msg -> Model -> Model
+-- dummy flag
+type alias Flags = Bool
+ 
+init : Flags -> (Model, Cmd Msg)
+init quick = 
+  ( { count = 0
+    , quick = quick
+    , content = "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。"
+    }
+  , focusTextarea
+  )
+
+subscriptions : Model -> Sub Msg
+subscriptions _ = Sub.none
+
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = 
   case msg of
     ClickedQuickMode ->
-      { model | quick = True }
+      ({ model | quick = True }, Cmd.none)
     ClickedNonQuickMode ->
-      { model | quick = False }
+      ({ model | quick = False }, Cmd.none)
     Typing newContent ->
       let
         k = log "hello" "hello"
       in
-      { model | content = newContent }
+      ({ model | content = newContent }, Cmd.none)
+    NoOp -> (model, Cmd.none)
     
 
 view : Model -> Html Msg
@@ -70,7 +77,7 @@ view model =
     , div [class "row"] 
       [ div [classes ["flex", "flex-row", "items-stretch"]]
         [ div [classes ["flex-1", "p-2", "border", "rounded"]] 
-          [ textarea [value model.content, onInput Typing, rows 8, classes ["w-full", "outline-none", "resize-none"]] []
+          [ textarea [Html.Attributes.id "user-input", placeholder "輸入字句", value model.content, onInput Typing, rows 8, classes ["w-full", "outline-none", "resize-none"]] []
           ]
         , div [classes ["flex-1", "p-2", "border", "rounded", "ml-4", "flex", "content-start", "flex-wrap" ]] (
             model.content
@@ -83,6 +90,11 @@ view model =
       ]
     ]
 
+port select : String -> Cmd msg
+
+focusTextarea : Cmd Msg
+focusTextarea  = Cmd.batch [attempt (\_ -> NoOp) (focus "user-input"), select "user-input"]
+  
 
 getKeyboardKeys : Char -> Maybe String
 getKeyboardKeys c = Dict.get c chineseQuickMapping
