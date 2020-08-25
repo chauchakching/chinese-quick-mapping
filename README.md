@@ -11,6 +11,7 @@ https://chauchakching.github.io/chinese-quick-mapping/
 
 - `elm`
 - `elm-live`
+- `elm-format`
 
 ## Getting Started
 
