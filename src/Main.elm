@@ -30,7 +30,8 @@ main = Browser.application
   }
 
 type Msg = 
-  Typing String
+    Typing String
+  | Clear
   | ClickedQuickMode
   | ClickedNonQuickMode
   | NoOp
@@ -77,14 +78,23 @@ update msg model =
     ClickedNonQuickMode ->
       ({ model | quick = False }, Cmd.none)
     Typing newContent ->
+      onContentUpdated newContent model
+    Clear ->
       let
-        newUrl = updateQuery "q" newContent model.url
+        (newModel, cmd) = onContentUpdated "" model
       in
-      ({ model | content = newContent, url = newUrl }
-      , pushUrl model.key <| Url.toString newUrl
-      )
+      (newModel, Cmd.batch [cmd, focusTextarea])
     NoOp -> (model, Cmd.none)
-    
+
+-- update model & url query
+onContentUpdated : String -> Model -> (Model, Cmd Msg)
+onContentUpdated newContent model = 
+  let
+    newUrl = updateQuery "q" newContent model.url
+  in
+  ({ model | content = newContent, url = newUrl }
+  , pushUrl model.key <| Url.toString newUrl
+  )
 
 view : Model -> Document Msg
 view model = 
@@ -97,9 +107,15 @@ view model =
           ]
 
         , div [classes ["row"]]
-          [ div [classes ["flex", "flex-row", "justify-end", "mb-4"]]
-            [ div [classes ["flex-0", "w-20", "-mr-4"]] [topButton model.quick "速成" [class "rounded-l", onClick ClickedQuickMode]]
-            , div [classes ["flex-0", "w-20", "-mr-3"]] [topButton (not model.quick) "倉頡" [class "rounded-r", onClick ClickedNonQuickMode]]]
+          [ div [classes ["flex", "flex-row", "justify-between", "mb-4"]]
+            [ div [classes ["flex", "flex-row"]]
+              [ div [classes ["flex-0", "w-20", "-mr-4"]] [clearButton "清空" [class "rounded", onClick Clear]]
+              ]
+            , div [classes ["flex", "flex-row"]]
+              [ div [classes ["flex-0", "w-20", "-mr-4"]] [topButton model.quick "速成" [class "rounded-l", onClick ClickedQuickMode]]
+              , div [classes ["flex-0", "w-20", "-mr-3"]] [topButton (not model.quick) "倉頡" [class "rounded-r", onClick ClickedNonQuickMode]]
+              ]
+            ]
           ]
           
         , div [class "row"] 
@@ -142,7 +158,12 @@ updateQuery k v url =
   { url | query = Just newQuery }
 
 focusTextarea : Cmd Msg
-focusTextarea  = Cmd.batch [attempt (\_ -> NoOp) (focus "user-input"), select "user-input"]
+focusTextarea  = 
+  let
+      kk = log "focusTextarea" 123
+  in
+  
+  Cmd.batch [attempt (\_ -> NoOp) (focus "user-input"), select "user-input"]
 
 getKeyboardKeys : Char -> Maybe String
 getKeyboardKeys c = Dict.get c chineseQuickMapping
@@ -181,6 +202,27 @@ quickUnitsToParts quickUnits = if String.length quickUnits < 2 then quickUnits e
   in
   Maybe.map2 charsToString firstChar lastChar
   |> Maybe.withDefault ""
+
+clearButton : String -> List (Attribute Msg) -> Html Msg
+clearButton content extraHtmlAttributes = 
+  let 
+    htmlAttributes = List.append 
+      [classes 
+        [ "text-center"
+        , "block"
+        , "border"
+        , "border-blue-500"
+        , "rounded"
+        , "py-1"
+        , "px-4"
+        , "text-white"
+        , "text-blue-500"
+        , "hover:bg-gray-200"
+        ]
+      ]
+      extraHtmlAttributes
+  in
+  button htmlAttributes [text content]
   
 topButton : Bool -> String -> List (Attribute Msg) -> Html Msg
 topButton active content extraHtmlAttributes = 
