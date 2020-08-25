@@ -59,9 +59,6 @@ update msg model =
     ClickedNonQuickMode ->
       ({ model | quick = False }, Cmd.none)
     Typing newContent ->
-      let
-        k = log "hello" "hello"
-      in
       ({ model | content = newContent }, Cmd.none)
     NoOp -> (model, Cmd.none)
     
