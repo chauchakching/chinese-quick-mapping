@@ -65,7 +65,7 @@ view : Model -> Html Msg
 view model = 
   div [classes ["container", "mx-auto", "px-4"]]
     [ div [class "row"]
-      [ h1 [classes ["text-5xl", "text-center", "my-16"]] [text "速成查字"]
+      [ h1 [classes ["text-5xl", "text-center", "my-8", "sm:my-16"]] [text "速成查字"]
 
       ]
 
