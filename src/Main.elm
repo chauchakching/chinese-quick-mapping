@@ -16,7 +16,13 @@ import List exposing (head)
 import Task exposing (attempt)
 import Browser.Dom exposing (Error, focus)
 
-main = Browser.element { init = init, subscriptions = subscriptions, update = update, view = view }
+main : Program Flags Model Msg
+main = Browser.element 
+  { init = init
+  , subscriptions = subscriptions
+  , update = update
+  , view = view 
+  }
 
 type Msg = 
   Typing String
@@ -95,7 +101,6 @@ port select : String -> Cmd msg
 
 focusTextarea : Cmd Msg
 focusTextarea  = Cmd.batch [attempt (\_ -> NoOp) (focus "user-input"), select "user-input"]
-  
 
 getKeyboardKeys : Char -> Maybe String
 getKeyboardKeys c = Dict.get c chineseQuickMapping
