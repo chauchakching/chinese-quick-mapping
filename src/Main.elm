@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Attribute, Html, h1, button, div, text, textarea, input)
+import Html exposing (Attribute, Html, h1, button, div, text, textarea)
 import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (value, class, classList, rows, placeholder)
 import Debug exposing (log)
@@ -9,12 +9,10 @@ import ChineseQuickMapping exposing (chineseQuickMapping)
 import Dict
 import KeyToQuickUnit exposing (keyToQuickUnit)
 import Maybe.Extra exposing (traverse)
-import List
-import Array.Extra exposing (zip)
 import List.Extra exposing (last)
 import List exposing (head)
 import Task exposing (attempt)
-import Browser.Dom exposing (Error, focus)
+import Browser.Dom exposing (focus)
 
 main : Program Flags Model Msg
 main = Browser.element 
