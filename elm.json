@@ -13,7 +13,8 @@
             "elm/url": "1.0.0",
             "elm-community/array-extra": "2.3.0",
             "elm-community/list-extra": "8.2.4",
-            "elm-community/maybe-extra": "5.2.0"
+            "elm-community/maybe-extra": "5.2.0",
+            "sporto/qs": "1.2.0"
         },
         "indirect": {
             "avh4/elm-color": "1.0.0",

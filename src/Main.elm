@@ -19,6 +19,7 @@ import Url exposing (Url)
 import Url.Parser as UrlParser
 import Url.Parser.Query as UrlQuery
 import Url.Parser
+import QS
 
 main : Program Flags Model Msg
 main = Browser.application 
@@ -78,7 +79,12 @@ update msg model =
     ClickedNonQuickMode ->
       ({ model | quick = False }, Cmd.none)
     Typing newContent ->
-      ({ model | content = newContent }, Cmd.none)
+      let
+        newUrl = updateQuery "q" newContent model.url
+      in
+      ({ model | content = newContent, url = newUrl }
+      , pushUrl model.key <| Url.toString newUrl
+      )
     NoOp -> (model, Cmd.none)
     
 
@@ -123,6 +129,19 @@ getTextFromUrl : Url -> Maybe String
 getTextFromUrl url = url
   |> UrlParser.parse (UrlParser.query (UrlQuery.string "q"))
   |> Maybe.Extra.join
+
+
+updateQuery : String -> String -> Url -> Url
+updateQuery k v url = 
+  let
+    newQuery = url.query
+      |> Maybe.withDefault "" 
+      |> QS.parse QS.config 
+      |> QS.setStr k v 
+      |> QS.serialize QS.config
+      |> String.dropLeft 1 -- remove excess leading "?"
+  in
+  { url | query = Just newQuery }
 
 focusTextarea : Cmd Msg
 focusTextarea  = Cmd.batch [attempt (\_ -> NoOp) (focus "user-input"), select "user-input"]
