@@ -9,16 +9,25 @@
   <style>
     body {
       height: 100vh;
-      background: linear-gradient(to top, #86ffe5, #fbffd6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+      background: linear-gradient(to top, #86ffe5, #fbffd6) fixed; /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     }
   </style>
 </head>
 <body>
   <div id='elm-node'></div>
   <script>
-    var app = Elm.Main.init({node: document.getElementById('elm-node'), flags: true})
+    var inputHistory = localStorage.getItem('inputHistory')
+    var flags
+    try {
+      flags = inputHistory ? JSON.parse(inputHistory) : null
+    } catch (e) {}
+
+    var app = Elm.Main.init({node: document.getElementById('elm-node'), flags: flags})
     app.ports.select.subscribe(function(id) {
       document.getElementById(id).select()
+    })
+    app.ports.setStorage.subscribe(function(x) {
+      localStorage.setItem('inputHistory', JSON.stringify(x))
     })
   </script>
 </body>

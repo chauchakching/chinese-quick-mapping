@@ -7,8 +7,10 @@ import ChineseQuickMapping exposing (chineseQuickMapping)
 import Debug exposing (log)
 import Dict
 import Html exposing (Attribute, Html, button, div, h1, text, textarea)
-import Html.Attributes exposing (class, classList, placeholder, rows, value)
+import Html.Attributes exposing (class, classList, placeholder, rows, style, value)
 import Html.Events exposing (onClick, onInput)
+import Json.Decode as D
+import Json.Encode as E
 import KeyToQuickUnit exposing (keyToQuickUnit)
 import List exposing (head)
 import List.Extra exposing (last)
@@ -25,7 +27,7 @@ main =
     Browser.application
         { init = init
         , subscriptions = subscriptions
-        , update = update
+        , update = updateWithStorage
         , view = view
         , onUrlRequest = onUrlRequest
         , onUrlChange = onUrlChange
@@ -46,6 +48,7 @@ type alias Model =
     , count : Int
     , quick : Bool
     , content : String
+    , inputHistory : InputHistory
     }
 
 
@@ -54,20 +57,33 @@ type alias Model =
 
 
 type alias Flags =
-    Bool
+    E.Value
 
 
-init : Flags -> Url -> Key -> ( Model, Cmd Msg )
-init quick url key =
+type alias InputHistory =
+    List String
+
+
+init : E.Value -> Url -> Key -> ( Model, Cmd Msg )
+init flags url key =
     let
         q =
             getTextFromUrl url
+
+        inputHistory =
+            case D.decodeValue decoder flags of
+                Ok x ->
+                    x
+
+                Err _ ->
+                    log "Error in parsing localStorage data" []
     in
     ( { key = key
       , url = url
       , count = 0
-      , quick = quick
+      , quick = True
       , content = Maybe.withDefault "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。" q
+      , inputHistory = inputHistory
       }
     , focusTextarea
     )
@@ -111,6 +127,17 @@ update msg model =
             ( model, Cmd.none )
 
 
+updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
+updateWithStorage msg oldModel =
+    let
+        ( newModel, cmds ) =
+            update msg oldModel
+    in
+    ( newModel
+    , Cmd.batch [ setStorage (encode newModel.inputHistory), cmds ]
+    )
+
+
 
 -- update model & url query
 
@@ -120,8 +147,35 @@ onContentUpdated newContent model =
     let
         newUrl =
             updateQuery "q" newContent model.url
+
+        shouldAppendHistory =
+            newContent
+                /= ""
+                && (last model.inputHistory
+                        |> Maybe.map (String.startsWith newContent)
+                        |> Maybe.withDefault False
+                        |> not
+                   )
+                && (not <| List.member newContent model.inputHistory)
+
+        shouldUpdateLastHistory =
+            last model.inputHistory
+                |> Maybe.map (\x -> String.startsWith x newContent)
+                |> Maybe.withDefault False
+
+        newInputHistory =
+            List.take 10
+                (if shouldAppendHistory && shouldUpdateLastHistory then
+                    List.append [ newContent ] (Maybe.withDefault [] <| List.tail model.inputHistory)
+
+                 else if shouldAppendHistory then
+                    List.append [ newContent ] model.inputHistory
+
+                 else
+                    model.inputHistory
+                )
     in
-    ( { model | content = newContent, url = newUrl }
+    ( { model | content = newContent, url = newUrl, inputHistory = newInputHistory }
     , pushUrl model.key <| Url.toString newUrl
     )
 
@@ -136,7 +190,7 @@ view model =
             , div [ classes [ "row" ] ]
                 [ div [ classes [ "flex", "flex-row", "justify-between", "mb-4" ] ]
                     [ div [ classes [ "flex", "flex-row" ] ]
-                        [ div [ classes [ "flex-0", "w-20", "-mr-4" ] ] [ clearButton "清空" [ classes ["rounded", "bg-white"], onClick Clear ] ] ]
+                        [ div [ classes [ "flex-0", "w-20", "-mr-4" ] ] [ clearButton "清空" [ classes [ "rounded", "bg-white" ], onClick Clear ] ] ]
                     , div [ classes [ "flex", "flex-row" ] ]
                         [ div
                             [ classes [ "flex-0", "w-20", "-mr-4" ] ]
@@ -149,7 +203,7 @@ view model =
                 ]
             , div [ class "row" ]
                 [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
-                    [ div 
+                    [ div
                         [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white" ] ]
                         [ textarea
                             [ Html.Attributes.id "user-input"
@@ -168,6 +222,7 @@ view model =
                             , "border-l"
                             , "border-r"
                             , "border-b"
+
                             -- , "sm:border-t"
                             , "sm:border-0"
                             , "rounded-b"
@@ -186,6 +241,13 @@ view model =
                         )
                     ]
                 ]
+            , div
+                [ classes [ "row", "flex", "flex-row", "flex-wrap", "items-stretch" ] ]
+                [ div
+                    [ classes [ "flex-1" ] ]
+                    (List.map (\x -> historyEntry x [ onClick <| Typing x ]) model.inputHistory)
+                , div [ classes [ "sm:flex-1" ] ] []
+                ]
             ]
         ]
     }
@@ -196,6 +258,9 @@ view model =
 
 
 port select : String -> Cmd msg
+
+
+port setStorage : E.Value -> Cmd msg
 
 
 getTextFromUrl : Url -> Maybe String
@@ -354,7 +419,38 @@ charBox chineseWord parts =
         ]
 
 
+historyEntry : String -> List (Attribute Msg) -> Html Msg
+historyEntry str extraAttributes =
+    button
+        (List.append
+            [ classes
+                [ "bg-white"
+                , "hover:bg-gray-200"
+                , "border"
+                , "mr-1"
+                , "mt-2"
+                , "px-2"
+                , "rounded-full"
+                , "truncate"
+                ]
+            , style "max-width" "180px"
+            ]
+            extraAttributes
+        )
+        [ text str ]
+
+
 classes : List String -> Attribute msg
 classes xs =
     List.map (\x -> ( x, True )) xs
         |> classList
+
+
+encode : InputHistory -> E.Value
+encode =
+    E.list E.string
+
+
+decoder : D.Decoder InputHistory
+decoder =
+    D.list D.string
