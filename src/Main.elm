@@ -130,13 +130,13 @@ view : Model -> Document Msg
 view model =
     { title = "速成查字"
     , body =
-        [ div [ classes [ "container", "mx-auto", "px-4" ] ]
+        [ div [ classes [ "container", "mx-auto", "px-4", "max-w-5xl" ] ]
             [ div [ class "row" ]
-                [ h1 [ classes [ "text-5xl", "text-center", "my-8", "sm:my-16" ] ] [ text "速成查字" ] ]
+                [ h1 [ classes [ "text-5xl", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
             , div [ classes [ "row" ] ]
                 [ div [ classes [ "flex", "flex-row", "justify-between", "mb-4" ] ]
                     [ div [ classes [ "flex", "flex-row" ] ]
-                        [ div [ classes [ "flex-0", "w-20", "-mr-4" ] ] [ clearButton "清空" [ class "rounded", onClick Clear ] ] ]
+                        [ div [ classes [ "flex-0", "w-20", "-mr-4" ] ] [ clearButton "清空" [ classes ["rounded", "bg-white"], onClick Clear ] ] ]
                     , div [ classes [ "flex", "flex-row" ] ]
                         [ div
                             [ classes [ "flex-0", "w-20", "-mr-4" ] ]
@@ -149,13 +149,14 @@ view model =
                 ]
             , div [ class "row" ]
                 [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
-                    [ div [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b" ] ]
+                    [ div 
+                        [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white" ] ]
                         [ textarea
                             [ Html.Attributes.id "user-input"
                             , placeholder "輸入字句"
                             , value model.content
                             , onInput Typing
-                            , rows 8
+                            , rows 6
                             , classes [ "w-full", "outline-none", "resize-none" ]
                             ]
                             []
@@ -167,13 +168,15 @@ view model =
                             , "border-l"
                             , "border-r"
                             , "border-b"
-                            , "sm:border-t"
+                            -- , "sm:border-t"
+                            , "sm:border-0"
                             , "rounded-b"
                             , "sm:rounded-t"
                             , "sm:ml-4"
                             , "flex"
                             , "content-start"
                             , "flex-wrap"
+                            , "bg-white"
                             ]
                         ]
                         (model.content
@@ -334,6 +337,7 @@ topButton active content extraHtmlAttributes =
                     -- , ("border-blue-500", active)
                     -- , ("hover:border-gray-200", not active)
                     , ( "text-blue-500", not active )
+                    , ( "bg-white", not active )
                     , ( "hover:bg-gray-200", not active )
                     ]
                 ]
