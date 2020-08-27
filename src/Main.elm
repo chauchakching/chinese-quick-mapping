@@ -18,8 +18,6 @@ import Maybe.Extra exposing (traverse)
 import QS
 import Task exposing (attempt)
 import Url exposing (Url)
-import Url.Parser as UrlParser
-import Url.Parser.Query as UrlQuery
 
 
 repoHref : String
@@ -286,9 +284,11 @@ port setStorage : E.Value -> Cmd msg
 
 getTextFromUrl : Url -> Maybe String
 getTextFromUrl url =
-    url
-        |> UrlParser.parse (UrlParser.query (UrlQuery.string "q"))
-        |> Maybe.Extra.join
+    url.query
+        |> Maybe.withDefault ""
+        |> QS.parse QS.config
+        |> QS.getAsStringList "q"
+        |> head
 
 
 updateQuery : String -> String -> Url -> Url
