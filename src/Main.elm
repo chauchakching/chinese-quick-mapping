@@ -1,13 +1,13 @@
 port module Main exposing (main)
 
-import Browser exposing (Document, UrlRequest)
+import Browser exposing (Document)
 import Browser.Dom exposing (focus)
-import Browser.Navigation exposing (Key, pushUrl)
+import Browser.Navigation exposing (Key, load, pushUrl)
 import ChineseQuickMapping exposing (chineseQuickMapping)
 import Debug exposing (log)
 import Dict
-import Html exposing (Attribute, Html, button, div, h1, text, textarea)
-import Html.Attributes exposing (class, classList, placeholder, rows, style, value)
+import Html exposing (Attribute, Html, a, button, div, h1, img, text, textarea)
+import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as D
 import Json.Encode as E
@@ -22,6 +22,11 @@ import Url.Parser as UrlParser
 import Url.Parser.Query as UrlQuery
 
 
+repoHref : String
+repoHref =
+    "https://github.com/chauchakching/chinese-quick-mapping"
+
+
 main : Program Flags Model Msg
 main =
     Browser.application
@@ -29,8 +34,8 @@ main =
         , subscriptions = subscriptions
         , update = updateWithStorage
         , view = view
-        , onUrlRequest = onUrlRequest
-        , onUrlChange = onUrlChange
+        , onUrlRequest = LinkClicked
+        , onUrlChange = UrlChanged
         }
 
 
@@ -40,6 +45,8 @@ type Msg
     | ClickedQuickMode
     | ClickedNonQuickMode
     | NoOp
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
 
 
 type alias Model =
@@ -94,19 +101,20 @@ subscriptions _ =
     Sub.none
 
 
-onUrlRequest : UrlRequest -> Msg
-onUrlRequest _ =
-    NoOp
-
-
-onUrlChange : Url -> Msg
-onUrlChange _ =
-    NoOp
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, load href )
+
+        UrlChanged url ->
+            ( { model | url = url }, Cmd.none )
+
         ClickedQuickMode ->
             ( { model | quick = True }, Cmd.none )
 
@@ -184,70 +192,77 @@ view : Model -> Document Msg
 view model =
     { title = "速成查字"
     , body =
-        [ div [ classes [ "container", "mx-auto", "px-4", "max-w-5xl" ] ]
-            [ div [ class "row" ]
-                [ h1 [ classes [ "text-5xl", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
-            , div [ classes [ "row" ] ]
-                [ div [ classes [ "flex", "flex-row", "justify-between", "mb-4" ] ]
-                    [ div [ classes [ "flex", "flex-row" ] ]
-                        [ div [ classes [ "flex-0", "w-20", "-mr-4" ] ] [ clearButton "清空" [ classes [ "rounded", "bg-white" ], onClick Clear ] ] ]
-                    , div [ classes [ "flex", "flex-row" ] ]
+        [ div [ classes [ "container", "mx-auto", "px-4", "max-w-5xl", "h-screen", "flex", "flex-col", "justify-between" ] ]
+            [ div []
+                [ div []
+                    [ h1 [ classes [ "text-5xl", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
+                , div []
+                    [ div [ classes [ "flex", "flex-row", "justify-between", "mb-4" ] ]
+                        [ div [ classes [ "flex", "flex-row" ] ]
+                            [ div [ classes [ "flex-0", "w-20", "-mr-4" ] ] [ clearButton "清空" [ classes [ "rounded", "bg-white" ], onClick Clear ] ] ]
+                        , div [ classes [ "flex", "flex-row" ] ]
+                            [ div
+                                [ classes [ "flex-0", "w-20", "-mr-4" ] ]
+                                [ topButton model.quick "速成" [ class "rounded-l", onClick ClickedQuickMode ] ]
+                            , div
+                                [ classes [ "flex-0", "w-20", "-mr-3" ] ]
+                                [ topButton (not model.quick) "倉頡" [ class "rounded-r", onClick ClickedNonQuickMode ] ]
+                            ]
+                        ]
+                    ]
+                , div []
+                    [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
                         [ div
-                            [ classes [ "flex-0", "w-20", "-mr-4" ] ]
-                            [ topButton model.quick "速成" [ class "rounded-l", onClick ClickedQuickMode ] ]
+                            [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white" ] ]
+                            [ textarea
+                                [ Html.Attributes.id "user-input"
+                                , placeholder "輸入字句"
+                                , value model.content
+                                , onInput Typing
+                                , rows 6
+                                , classes [ "w-full", "outline-none", "resize-none" ]
+                                ]
+                                []
+                            ]
                         , div
-                            [ classes [ "flex-0", "w-20", "-mr-3" ] ]
-                            [ topButton (not model.quick) "倉頡" [ class "rounded-r", onClick ClickedNonQuickMode ] ]
-                        ]
-                    ]
-                ]
-            , div [ class "row" ]
-                [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
-                    [ div
-                        [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white" ] ]
-                        [ textarea
-                            [ Html.Attributes.id "user-input"
-                            , placeholder "輸入字句"
-                            , value model.content
-                            , onInput Typing
-                            , rows 6
-                            , classes [ "w-full", "outline-none", "resize-none" ]
-                            ]
-                            []
-                        ]
-                    , div
-                        [ classes
-                            [ "flex-1"
-                            , "p-2"
-                            , "border-l"
-                            , "border-r"
-                            , "border-b"
+                            [ classes
+                                [ "flex-1"
+                                , "p-2"
+                                , "border-l"
+                                , "border-r"
+                                , "border-b"
 
-                            -- , "sm:border-t"
-                            , "sm:border-0"
-                            , "rounded-b"
-                            , "sm:rounded-t"
-                            , "sm:ml-4"
-                            , "flex"
-                            , "content-start"
-                            , "flex-wrap"
-                            , "bg-white"
+                                -- , "sm:border-t"
+                                , "sm:border-0"
+                                , "rounded-b"
+                                , "sm:rounded-t"
+                                , "sm:ml-4"
+                                , "flex"
+                                , "content-start"
+                                , "flex-wrap"
+                                , "bg-white"
+                                ]
                             ]
+                            (model.content
+                                |> String.toList
+                                |> List.map
+                                    (chineseToParts model.quick >> (\( ch, parts ) -> charBox ch parts))
+                            )
                         ]
-                        (model.content
-                            |> String.toList
-                            |> List.map
-                                (chineseToParts model.quick >> (\( ch, parts ) -> charBox ch parts))
-                        )
+                    ]
+                , div
+                    [ classes [ "flex", "flex-row", "flex-wrap", "items-stretch" ] ]
+                    [ div
+                        [ classes [ "flex-1" ] ]
+                        (List.map (\x -> historyEntry x [ onClick <| Typing x ]) model.inputHistory)
+                    , div [ classes [ "sm:flex-1" ] ] []
                     ]
                 ]
+
+            -- footer
             , div
-                [ classes [ "row", "flex", "flex-row", "flex-wrap", "items-stretch" ] ]
-                [ div
-                    [ classes [ "flex-1" ] ]
-                    (List.map (\x -> historyEntry x [ onClick <| Typing x ]) model.inputHistory)
-                , div [ classes [ "sm:flex-1" ] ] []
-                ]
+                [ classes [ "self-end", "py-4", "flex", "flex-row", "items-center" ] ]
+                [ a [ href repoHref ] [ img [ src "GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ] ]
             ]
         ]
     }
