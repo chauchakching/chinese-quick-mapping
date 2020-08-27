@@ -1,14 +1,16 @@
 port module Main exposing (main)
 
+-- import ChineseQuickMapping exposing (chineseQuickMapping)
+
 import Browser exposing (Document)
 import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
-import ChineseQuickMapping exposing (chineseQuickMapping)
 import Debug exposing (log)
-import Dict
+import Dict exposing (Dict)
 import Html exposing (Attribute, Html, a, button, div, h1, img, text, textarea)
 import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value)
 import Html.Events exposing (onClick, onInput)
+import Http
 import Json.Decode as D
 import Json.Encode as E
 import KeyToQuickUnit exposing (keyToQuickUnit)
@@ -45,6 +47,11 @@ type Msg
     | NoOp
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
+    | GotQuickMapping (Result Http.Error QuickMapping)
+
+
+type alias QuickMapping =
+    Dict String String
 
 
 type alias Model =
@@ -54,6 +61,7 @@ type alias Model =
     , quick : Bool
     , content : String
     , inputHistory : InputHistory
+    , quickMapping : QuickMapping
     }
 
 
@@ -63,6 +71,17 @@ type alias Model =
 
 type alias Flags =
     E.Value
+
+
+type alias DecodedFlags =
+    { inputHistory : InputHistory
+    , quickMapping : QuickMapping
+    }
+
+
+type alias Storage = 
+    { inputHistory : InputHistory
+    }
 
 
 type alias InputHistory =
@@ -75,22 +94,29 @@ init flags url key =
         q =
             getTextFromUrl url
 
-        inputHistory =
+        decodedFlags =
             case D.decodeValue decoder flags of
                 Ok x ->
                     x
 
                 Err _ ->
-                    log "Error in parsing localStorage data" []
+                    log "Error in parsing flags data" <| DecodedFlags [] Dict.empty
+
+        fetchQuickMapping =
+            Http.get
+                { url = "ChineseQuickMapping.json"
+                , expect = Http.expectJson GotQuickMapping (D.dict D.string)
+                }
     in
     ( { key = key
       , url = url
       , count = 0
       , quick = True
       , content = Maybe.withDefault "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。" q
-      , inputHistory = inputHistory
+      , inputHistory = decodedFlags.inputHistory
+      , quickMapping = decodedFlags.quickMapping
       }
-    , focusTextarea
+    , Cmd.batch [ focusTextarea, fetchQuickMapping ]
     )
 
 
@@ -129,6 +155,16 @@ update msg model =
             in
             ( newModel, Cmd.batch [ cmd, focusTextarea ] )
 
+        GotQuickMapping result ->
+            case result of
+                Ok quickMapping ->
+                    ( { model | quickMapping = quickMapping }
+                    , setQuickMapping (encodeQuickMapping quickMapping)
+                    )
+
+                Err _ ->
+                    ( { model | quickMapping = Dict.empty }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -138,9 +174,12 @@ updateWithStorage msg oldModel =
     let
         ( newModel, cmds ) =
             update msg oldModel
+
+        _ =
+            log "updateWithStorage()" ""
     in
     ( newModel
-    , Cmd.batch [ setStorage (encode newModel.inputHistory), cmds ]
+    , Cmd.batch [ setStorage (encode <| Storage oldModel.inputHistory), cmds ]
     )
 
 
@@ -250,7 +289,7 @@ view model =
                             (model.content
                                 |> String.toList
                                 |> List.map
-                                    (chineseToParts model.quick >> (\( ch, parts ) -> charBox ch parts))
+                                    (chineseToParts model.quickMapping model.quick >> (\( ch, parts ) -> charBox ch parts))
                             )
                         ]
                     ]
@@ -282,6 +321,9 @@ port select : String -> Cmd msg
 port setStorage : E.Value -> Cmd msg
 
 
+port setQuickMapping : E.Value -> Cmd msg
+
+
 getTextFromUrl : Url -> Maybe String
 getTextFromUrl url =
     url.query
@@ -300,9 +342,8 @@ updateQuery k v url =
                 |> QS.parse QS.config
                 |> QS.setStr k v
                 |> QS.serialize QS.config
+                -- remove excess leading "?"
                 |> String.dropLeft 1
-
-        -- remove excess leading "?"
     in
     { url | query = Just newQuery }
 
@@ -312,34 +353,31 @@ focusTextarea =
     Cmd.batch [ attempt (\_ -> NoOp) (focus "user-input"), select "user-input" ]
 
 
-getKeyboardKeys : Char -> Maybe String
-getKeyboardKeys c =
-    Dict.get c chineseQuickMapping
-
-
 alphabetToQuickUnit : Char -> Maybe Char
 alphabetToQuickUnit a =
     Dict.get a keyToQuickUnit
 
 
-chineseToQuickUnits : Char -> Maybe String
-chineseToQuickUnits ch =
-    ch
-        |> getKeyboardKeys
-        |> Maybe.andThen
-            (\keys ->
-                keys
-                    |> String.toList
-                    |> traverse alphabetToQuickUnit
-                    |> Maybe.map String.fromList
-            )
-
-
-chineseToParts : Bool -> Char -> ( Char, String )
-chineseToParts isQuick ch =
+chineseToParts : QuickMapping -> Bool -> Char -> ( Char, String )
+chineseToParts mapping isQuick ch =
     let
+        keyboardKeys : Maybe String
+        keyboardKeys =
+            Dict.get (String.fromChar ch) mapping
+
+        chineseToQuickUnits : Maybe String
+        chineseToQuickUnits =
+            keyboardKeys
+                |> Maybe.andThen
+                    (\keys ->
+                        keys
+                            |> String.toList
+                            |> traverse alphabetToQuickUnit
+                            |> Maybe.map String.fromList
+                    )
+
         quickUnits =
-            chineseToQuickUnits ch
+            chineseToQuickUnits
                 |> Maybe.withDefault ""
 
         parts =
@@ -467,11 +505,20 @@ classes xs =
         |> classList
 
 
-encode : InputHistory -> E.Value
-encode =
-    E.list E.string
+encode : Storage -> E.Value
+encode storage =
+    E.object
+        [ ( "inputHistory", E.list E.string storage.inputHistory )
+        ]
 
 
-decoder : D.Decoder InputHistory
+decoder : D.Decoder DecodedFlags
 decoder =
-    D.list D.string
+    D.map2 DecodedFlags
+        (D.field "inputHistory" (D.list D.string))
+        (D.field "quickMapping" (D.dict D.string))
+
+
+encodeQuickMapping : QuickMapping -> E.Value
+encodeQuickMapping quickMapping =
+    E.dict identity E.string quickMapping
