@@ -159,7 +159,7 @@ onContentUpdated newContent model =
         shouldAppendHistory =
             newContent
                 /= ""
-                && (last model.inputHistory
+                && (head model.inputHistory
                         |> Maybe.map (String.startsWith newContent)
                         |> Maybe.withDefault False
                         |> not
@@ -167,7 +167,7 @@ onContentUpdated newContent model =
                 && (not <| List.member newContent model.inputHistory)
 
         shouldUpdateLastHistory =
-            last model.inputHistory
+            head model.inputHistory
                 |> Maybe.map (\x -> String.startsWith x newContent)
                 |> Maybe.withDefault False
 
