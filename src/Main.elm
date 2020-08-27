@@ -156,36 +156,42 @@ onContentUpdated newContent model =
         newUrl =
             updateQuery "q" newContent model.url
 
-        shouldAppendHistory =
-            newContent
-                /= ""
-                && (head model.inputHistory
-                        |> Maybe.map (String.startsWith newContent)
-                        |> Maybe.withDefault False
-                        |> not
-                   )
-                && (not <| List.member newContent model.inputHistory)
-
-        shouldUpdateLastHistory =
-            head model.inputHistory
-                |> Maybe.map (\x -> String.startsWith x newContent)
-                |> Maybe.withDefault False
-
         newInputHistory =
-            List.take 10
-                (if shouldAppendHistory && shouldUpdateLastHistory then
-                    List.append [ newContent ] (Maybe.withDefault [] <| List.tail model.inputHistory)
-
-                 else if shouldAppendHistory then
-                    List.append [ newContent ] model.inputHistory
-
-                 else
-                    model.inputHistory
-                )
+            updateInputHistory newContent model.inputHistory
     in
     ( { model | content = newContent, url = newUrl, inputHistory = newInputHistory }
     , pushUrl model.key <| Url.toString newUrl
     )
+
+
+updateInputHistory : String -> InputHistory -> InputHistory
+updateInputHistory newContent inputHistory =
+    let
+        shouldAppendHistory =
+            newContent
+                /= ""
+                && (head inputHistory
+                        |> Maybe.map (String.startsWith newContent)
+                        |> Maybe.withDefault False
+                        |> not
+                   )
+                && (not <| List.member newContent inputHistory)
+
+        shouldUpdateLastHistory =
+            head inputHistory
+                |> Maybe.map (\x -> String.startsWith x newContent)
+                |> Maybe.withDefault False
+    in
+    List.take 10
+        (if shouldAppendHistory && shouldUpdateLastHistory then
+            List.append [ newContent ] (Maybe.withDefault [] <| List.tail inputHistory)
+
+         else if shouldAppendHistory then
+            List.append [ newContent ] inputHistory
+
+         else
+            inputHistory
+        )
 
 
 view : Model -> Document Msg
