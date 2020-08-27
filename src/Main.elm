@@ -5,7 +5,7 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
-import Debug exposing (log)
+-- import Debug exposing (log)
 import Dict exposing (Dict)
 import Html exposing (Attribute, Html, a, button, div, h1, img, text, textarea)
 import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value)
@@ -20,6 +20,8 @@ import Maybe.Extra exposing (traverse)
 import QS
 import Task exposing (attempt)
 import Url exposing (Url)
+
+log src x = x
 
 
 repoHref : String
@@ -104,7 +106,7 @@ init flags url key =
 
         fetchQuickMapping =
             Http.get
-                { url = "ChineseQuickMapping.json"
+                { url = "assets/ChineseQuickMapping.json"
                 , expect = Http.expectJson GotQuickMapping (D.dict D.string)
                 }
     in
@@ -305,7 +307,7 @@ view model =
             -- footer
             , div
                 [ classes [ "self-end", "py-4", "flex", "flex-row", "items-center" ] ]
-                [ a [ href repoHref ] [ img [ src "GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ] ]
+                [ a [ href repoHref ] [ img [ src "assets/GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ] ]
             ]
         ]
     }
