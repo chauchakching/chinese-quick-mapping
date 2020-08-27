@@ -1,6 +1,7 @@
 'use strict';
 
 import './index.html'
+import './styles.css'
 const {Elm} = require('./Main.elm')
 
 let flags = {
