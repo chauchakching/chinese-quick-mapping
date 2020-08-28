@@ -1,11 +1,11 @@
 port module Main exposing (main)
 
 -- import ChineseQuickMapping exposing (chineseQuickMapping)
+-- import Debug exposing (log)
 
 import Browser exposing (Document)
 import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
--- import Debug exposing (log)
 import Dict exposing (Dict)
 import Html exposing (Attribute, Html, a, button, div, h1, img, text, textarea)
 import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value)
@@ -21,7 +21,13 @@ import QS
 import Task exposing (attempt)
 import Url exposing (Url)
 
-log src x = x
+
+
+-- dummy log for production build
+
+
+log src x =
+    x
 
 
 repoHref : String
@@ -81,7 +87,7 @@ type alias DecodedFlags =
     }
 
 
-type alias Storage = 
+type alias Storage =
     { inputHistory : InputHistory
     }
 
@@ -176,9 +182,6 @@ updateWithStorage msg oldModel =
     let
         ( newModel, cmds ) =
             update msg oldModel
-
-        _ =
-            log "updateWithStorage()" ""
     in
     ( newModel
     , Cmd.batch [ setStorage (encode <| Storage oldModel.inputHistory), cmds ]
