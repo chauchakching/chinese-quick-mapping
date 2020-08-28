@@ -1,11 +1,13 @@
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const WorkboxPlugin = require('workbox-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 module.exports = {
   entry: './src/index.js',
   output: {
-    filename: 'main.js',
+    filename: 'main.[hash].js',
     path: path.resolve(__dirname, 'dist'),
   },
 
@@ -21,6 +23,14 @@ module.exports = {
       // and not allow any straggling "old" SWs to hang around
       clientsClaim: true,
       skipWaiting: true,
+    }),
+
+    // clean up output folder
+    new CleanWebpackPlugin(),
+
+    new HtmlWebpackPlugin({
+      title: '速成查字'
+      // template: './src/index.html'
     })
   ],
 
