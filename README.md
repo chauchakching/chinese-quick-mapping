@@ -10,13 +10,13 @@ https://chauchakching.github.io/chinese-quick-mapping/
 ## Prerequisite
 
 - `elm`
-- `elm-live`
 - `elm-format`
 
 ## Getting Started
 
 1. Install prerequisites
-2. `yarn dev`
+2. `yarn`
+3. `yarn dev`
 
 ### Build
 
@@ -24,8 +24,4 @@ https://chauchakching.github.io/chinese-quick-mapping/
 yarn build
 ```
 
-A dev server will be started on `localhost:8000`
-
-## TODO
-
-- reduce build size
+A dev server will be started on `localhost:8080`

@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "webpack-dev-server",
     "format": "elm-format src/Main.elm --yes",
+    "format-watch": "nodemon -e elm --watch src --exec yarn format",
     "build": "webpack --mode production",
+    "start": "http-server dist",
     "gh": "git checkout gh-pages && git merge master --no-edit && yarn build && mkdir -p docs && cp -r dist/* docs/ && git add . && git commit -m 'publish demo' && git push && git checkout master"
   },
   "dependencies": {
@@ -20,11 +22,14 @@
     "elm-webpack-loader": "^7.0.1",
     "file-loader": "^6.0.0",
     "gh-pages": "^3.1.0",
+    "http-server": "^0.12.3",
+    "nodemon": "^2.0.4",
     "postcss-loader": "^3.0.0",
     "precss": "^4.0.0",
     "style-loader": "^1.2.1",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "workbox-webpack-plugin": "^5.1.3"
   }
 }
