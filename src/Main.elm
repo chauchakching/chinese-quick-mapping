@@ -261,7 +261,7 @@ view model =
                 , div []
                     [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
                         [ div
-                            [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white" ] ]
+                            [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white", "shadow-md" ] ]
                             [ textarea
                                 [ Html.Attributes.id "user-input"
                                 , placeholder "輸入字句"
@@ -289,6 +289,7 @@ view model =
                                 , "content-start"
                                 , "flex-wrap"
                                 , "bg-white"
+                                , "shadow-md"
                                 ]
                             ]
                             (model.content
@@ -301,7 +302,7 @@ view model =
                 , div
                     [ classes [ "flex", "flex-row", "flex-wrap", "items-stretch" ] ]
                     [ div
-                        [ classes [ "flex-1" ] ]
+                        [ classes [ "flex-1", "mt-2" ] ]
                         (List.map (\x -> historyEntry x [ onClick <| Typing x ]) model.inputHistory)
                     , div [ classes [ "sm:flex-1" ] ] []
                     ]
