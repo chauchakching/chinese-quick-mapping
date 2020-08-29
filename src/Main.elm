@@ -243,7 +243,7 @@ view model =
         [ div [ classes [ "container", "mx-auto", "px-4", "max-w-5xl", "h-screen", "flex", "flex-col", "justify-between" ] ]
             [ div []
                 [ div []
-                    [ h1 [ classes [ "text-5xl", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
+                    [ h1 [ classes [ "text-5xl", "text-gray-900", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
                 , div []
                     [ div [ classes [ "flex", "flex-row", "justify-between", "mb-4" ] ]
                         [ div [ classes [ "flex", "flex-row" ] ]
