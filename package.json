@@ -10,7 +10,7 @@
     "format-watch": "nodemon -e elm --watch src --exec yarn format",
     "build": "NODE_ENV=production webpack --mode production",
     "start": "http-server dist",
-    "gh": "git checkout gh-pages && git merge master --no-edit && yarn build && mkdir -p docs && cp -r dist/* docs/ && git add . && git commit -m 'publish demo' && git push && git checkout master"
+    "gh": "git checkout gh-pages && git merge master --no-edit && yarn build && mkdir -p docs && rm -rf docs/* && cp -r dist/* docs/ && git add . && git commit -m 'publish demo' && git push && git checkout master"
   },
   "dependencies": {
     "tailwindcss": "^1.7.5"
