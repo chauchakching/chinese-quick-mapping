@@ -28,9 +28,9 @@ module.exports = {
     // clean up output folder
     new CleanWebpackPlugin(),
 
+    // use src/index.ejs as template by default
     new HtmlWebpackPlugin({
-      title: '速成查字'
-      // template: './src/index.html'
+      title: '速成查字',
     })
   ],
 
