@@ -8,7 +8,7 @@
     "dev": "webpack-dev-server",
     "format": "elm-format src/Main.elm --yes",
     "format-watch": "nodemon -e elm --watch src --exec yarn format",
-    "build": "NODE_ENV=production webpack --mode production",
+    "build": "cross-env NODE_ENV=production webpack --mode production",
     "start": "http-server dist",
     "gh": "git checkout gh-pages && git merge master --no-edit && yarn build && mkdir -p docs && rm -rf docs/* && cp -r dist/* docs/ && git add . && git commit -m 'publish demo' && git push && git checkout master"
   },
@@ -18,6 +18,7 @@
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.0.3",
+    "cross-env": "^7.0.3",
     "css-loader": "^4.2.2",
     "elm-hot-webpack-loader": "^1.1.7",
     "elm-webpack-loader": "^7.0.1",
