@@ -31,6 +31,9 @@ module.exports = {
     // use src/index.ejs as template by default
     new HtmlWebpackPlugin({
       title: '速成查字',
+      meta: {
+        description: '超快查找速成/倉頡字碼 ：）',
+      }
     })
   ],
 
