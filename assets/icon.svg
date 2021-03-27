@@ -6,7 +6,7 @@
       </linearGradient>
   </defs>
   <g>
-    <rect x="0" y="0" rx="80" ry="80" width="512" height="512" fill="url(#Gradient2)"/>
+    <rect x="0" y="0" width="512" height="512" fill="url(#Gradient2)"/>
     <text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui" font-size="350">速</text>
   </g>
 </svg>
