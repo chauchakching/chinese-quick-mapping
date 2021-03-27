@@ -13,6 +13,11 @@
       "type": "image/png",
       "sizes": "200x200",
       "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
   "start_url": "/",
