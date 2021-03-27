@@ -261,7 +261,8 @@ view model =
                 , div []
                     [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
                         [ div
-                            [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white", "shadow-md" ] ]
+                            -- "flex" makes the child textarea height dynamic
+                            [ classes [ "flex-1", "p-2", "border", "rounded-t", "sm:rounded-b", "bg-white", "shadow-md", "flex" ] ]
                             [ textarea
                                 [ Html.Attributes.id "user-input"
                                 , placeholder "輸入字句"
