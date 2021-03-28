@@ -112,7 +112,7 @@ init flags url key =
 
         fetchQuickMapping =
             Http.get
-                { url = "assets/ChineseQuickMapping.json"
+                { url = "assets/ChineseQuickMappingSmall.json"
                 , expect = Http.expectJson GotQuickMapping (D.dict D.string)
                 }
     in
