@@ -6719,10 +6719,10 @@ schema-utils@^2.6.5, schema-utils@^2.6.6, schema-utils@^2.7.0:
     ajv "^6.12.2"
     ajv-keywords "^3.4.1"
 
-scrape-brrr@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/scrape-brrr/-/scrape-brrr-0.0.7.tgz#4a4e86cc31b40aa45126fad49e0a6888d3faa947"
-  integrity sha512-VAGd9if5+diq9T4lG5OXuVZAUMBmf5F1shxMBbiPf5eNvSj0tU/hqWCwZ8IgeQ4DMhLJivgvL49AkMYjYjpt9Q==
+scrape-brrr@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/scrape-brrr/-/scrape-brrr-1.0.1.tgz#7901c51cb3d3e76e0dcc0a4bac726151484835d9"
+  integrity sha512-KuRqfExjIKpQu1QtYWFZDlZuyp070Ajn5E1Gc17N2thj//yB62D6vm4Jv5b9qnKBnxV1ocjuHoKBVwhUwMbU3A==
   dependencies:
     axios "^0.21.1"
     jsdom "^16.5.1"
