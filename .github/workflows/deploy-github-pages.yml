@@ -23,6 +23,13 @@ jobs:
           yarn install
           yarn build
 
+      - name: End-to-end tests
+        uses: cypress-io/github-action@v2
+        with:
+          install: false
+          start: yarn start
+          wait-on: http://localhost:8080
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.0
         with:
