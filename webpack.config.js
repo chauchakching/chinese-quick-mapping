@@ -7,7 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 module.exports = {
   entry: './src/index.js',
   output: {
-    filename: 'main.[hash].js',
+    filename: 'main.[fullhash].js',
     path: path.resolve(__dirname, 'dist'),
   },
 
@@ -42,7 +42,10 @@ module.exports = {
       {
         test: /\.html$/,
         exclude: /node_modules/,
-        loader: 'file-loader?name=[name].[ext]'
+        loader: 'file-loader',
+        options:{
+          name: '[name].[ext]'
+        }
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
