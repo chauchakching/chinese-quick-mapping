@@ -3204,12 +3204,12 @@ elm-hot@^1.1.6:
   resolved "https://registry.yarnpkg.com/elm-hot/-/elm-hot-1.1.6.tgz#93e3962b40670e65f0a3640951b3add2702bfd0e"
   integrity sha512-zYZJlfs7Gt4BdjA+D+857K+XAWzwwySJmXCgFpHW1dIEfaHSZCIPYPf7/jinZBLfKRkOAlKzI32AA84DY50g7Q==
 
-elm-webpack-loader@^7.0.1:
-  version "7.0.1"
-  resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-7.0.1.tgz#7266d94466478e2f791fc6233a8c224480d8eab3"
-  integrity sha512-FuRsfEA3WptEhz2VDhtP04d1olR75E7+BYTGNGXYvobGKDah6pbKweApDedcFGo8vps0FKCd++HgHsF7yK1Uog==
+elm-webpack-loader@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-8.0.0.tgz#73a6be9315fceff27fdc62d46c89520bdffad20a"
+  integrity sha512-R49j9GOGbZ+PjrktAzYzjUgf6w+RHOIUNWLfOVdc7OoGG52SreEk63l/bLJV31HwLE8PU6KANEnzeZ3238fAUg==
   dependencies:
-    loader-utils "^1.4.0"
+    loader-utils "^2.0.0"
     node-elm-compiler "^5.0.0"
 
 emoji-regex@^7.0.1:
