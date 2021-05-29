@@ -8,7 +8,7 @@ import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
 import Dict exposing (Dict)
 import Html exposing (Attribute, Html, a, button, div, h1, img, text, textarea)
-import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value)
+import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value, attribute)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -292,6 +292,7 @@ view model =
                                 , "bg-white"
                                 , "shadow-md"
                                 ]
+                                , attribute "data-testid" "char-box-container"
                             ]
                             (model.content
                                 |> String.toList
@@ -301,7 +302,9 @@ view model =
                         ]
                     ]
                 , div
-                    [ classes [ "flex", "flex-row", "flex-wrap", "items-stretch" ] ]
+                    [ classes [ "flex", "flex-row", "flex-wrap", "items-stretch" ]
+                    , attribute "data-testid" "history-entries"
+                    ]
                     [ div
                         [ classes [ "flex-1", "mt-2" ] ]
                         (List.map (\x -> historyEntry x [ onClick <| Typing x ]) model.inputHistory)
@@ -479,7 +482,10 @@ topButton active content extraHtmlAttributes =
 
 charBox : Char -> String -> Html Msg
 charBox chineseWord parts =
-    div [ classes [ "flex", "flex-col", "items-center", "mx-1", "mb-2" ] ]
+    div [ classes [ "flex", "flex-col", "items-center", "mx-1", "mb-2" ]
+        , attribute "data-testid" "char-box"
+        , attribute "data-box-char" (String.fromChar chineseWord) 
+        ]
         [ div [ classes [ "flex", "flex-row", "text-2xl", "leading-8" ] ] [ text (String.fromChar chineseWord) ]
         , div [ classes [ "flex", "flex-row", "text-xs", "text-gray-500" ] ] [ text parts ]
         ]
@@ -500,6 +506,7 @@ historyEntry str extraAttributes =
                 , "truncate"
                 ]
             , style "max-width" "180px"
+            , attribute "data-testid" "history-entry-button"
             ]
             extraAttributes
         )
