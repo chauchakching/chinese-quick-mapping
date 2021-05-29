@@ -13,7 +13,7 @@
     "watch-build": "nodemon"
   },
   "dependencies": {
-    "tailwindcss": "^1.7.5"
+    "tailwindcss": "1.9.6"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
