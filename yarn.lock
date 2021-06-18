@@ -7366,10 +7366,10 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-tailwindcss@2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-2.2.1.tgz#b6dc2ff3cab8bc19485525c07e26a8c866a7dfc4"
-  integrity sha512-97F3NFPyEV/SuteJ9nKL+TcMpEoV6o80Macy/UtSjwIVhpEFCDbRkPBs54l7+aUDLIO75DzZm+vmJ3P/3ifYuA==
+tailwindcss@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-2.2.2.tgz#28a99c87b5a6b2bf6298a77d88dc0590e84fa8ee"
+  integrity sha512-OzFWhlnfrO3JXZKHQiqZcb0Wwl3oJSmQ7PvT2jdIgCjV5iUoAyql9bb9ZLCSBI5TYXmawujXAoNxXVfP5Auy/Q==
   dependencies:
     "@fullhuman/postcss-purgecss" "^4.0.3"
     arg "^5.0.0"
