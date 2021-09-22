@@ -26,7 +26,7 @@
     "http-server": "0.12.3",
     "iconv-lite": "0.6.3",
     "nodemon": "2.0.12",
-    "postcss": "8.3.6",
+    "postcss": "8.3.7",
     "postcss-loader": "6.1.1",
     "precss": "4.0.0",
     "ramda": "0.27.1",
