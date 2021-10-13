@@ -91,6 +91,7 @@ module.exports = {
 
   devServer: {
     inline: true,
-    stats: 'errors-only'
+    stats: 'errors-only',
+    port: 8089
   }
 }

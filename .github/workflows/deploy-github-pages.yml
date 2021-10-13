@@ -28,7 +28,7 @@ jobs:
         with:
           install: false
           start: yarn start
-          wait-on: http://localhost:8080
+          wait-on: http://localhost:8089
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.5

@@ -24,4 +24,4 @@ https://chauchakching.github.io/chinese-quick-mapping/
 yarn build
 ```
 
-A dev server will be started on `localhost:8080`
+A dev server will be started on `localhost:8089`

@@ -5,7 +5,7 @@ function expectKeystrokeTranslation(char, keystrokes) {
 
 describe('sanity test', () => {
   it('should work', () => {
-    cy.visit('http://localhost:8080')
+    cy.visit('http://localhost:8089')
 
     cy.get('h1').should('contain', '速成查字')
 
