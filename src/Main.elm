@@ -3,12 +3,14 @@ port module Main exposing (main)
 -- import ChineseQuickMapping exposing (chineseQuickMapping)
 -- import Debug exposing (log)
 
+import Array exposing (Array)
 import Browser exposing (Document)
 import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
+import Colors exposing (blue, blueFilterStyle, green1, green1FilterStyle, green2, green2FilterStyle, orange, orangeFilterStyle, red, redFilterStyle)
 import Dict exposing (Dict)
-import Html exposing (Attribute, Html, a, button, div, h1, img, text, textarea)
-import Html.Attributes exposing (class, classList, href, placeholder, rows, src, style, value, attribute)
+import Html exposing (Attribute, Html, a, button, div, h1, img, span, text, textarea)
+import Html.Attributes exposing (attribute, class, classList, href, placeholder, rows, src, style, value)
 import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as D
@@ -56,6 +58,8 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | GotQuickMapping (Result Http.Error QuickMapping)
+    | OpenModal Char
+    | CloseModal
 
 
 type alias QuickMapping =
@@ -70,6 +74,8 @@ type alias Model =
     , content : String
     , inputHistory : InputHistory
     , quickMapping : QuickMapping
+    , modalVisible : Bool
+    , modalChar : Char
     }
 
 
@@ -123,6 +129,8 @@ init flags url key =
       , content = Maybe.withDefault "速成輸入法，或稱簡易輸入法，亦作速成或簡易，為倉頡輸入法演化出來的簡化版本。" q
       , inputHistory = decodedFlags.inputHistory
       , quickMapping = decodedFlags.quickMapping
+      , modalVisible = False
+      , modalChar = '速'
       }
     , Cmd.batch [ focusTextarea, fetchQuickMapping ]
     )
@@ -172,6 +180,12 @@ update msg model =
 
                 Err _ ->
                     ( { model | quickMapping = Dict.empty }, Cmd.none )
+
+        OpenModal char ->
+            ( { model | modalVisible = True, modalChar = char }, Cmd.none )
+
+        CloseModal ->
+            ( { model | modalVisible = False }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -242,8 +256,11 @@ view model =
     , body =
         [ div [ classes [ "container", "mx-auto", "px-4", "max-w-5xl", "h-screen", "flex", "flex-col", "justify-between" ] ]
             [ div []
+                -- head
                 [ div []
                     [ h1 [ classes [ "text-5xl", "text-gray-900", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
+
+                -- buttons
                 , div []
                     [ div [ classes [ "flex", "flex-row", "justify-between", "mb-4" ] ]
                         [ div [ classes [ "flex", "flex-row" ] ]
@@ -258,6 +275,8 @@ view model =
                             ]
                         ]
                     ]
+
+                -- 2 boxes
                 , div []
                     [ div [ classes [ "flex", "flex-col", "sm:flex-row", "items-stretch" ] ]
                         [ div
@@ -292,7 +311,7 @@ view model =
                                 , "bg-white"
                                 , "shadow-md"
                                 ]
-                                , attribute "data-testid" "char-box-container"
+                            , attribute "data-testid" "char-box-container"
                             ]
                             (model.content
                                 |> String.toList
@@ -301,6 +320,8 @@ view model =
                             )
                         ]
                     ]
+
+                -- history entries
                 , div
                     [ classes [ "flex", "flex-row", "flex-wrap", "items-stretch" ]
                     , attribute "data-testid" "history-entries"
@@ -316,6 +337,36 @@ view model =
             , div
                 [ classes [ "self-end", "py-4", "flex", "flex-row", "items-center" ] ]
                 [ a [ href repoHref ] [ img [ src "assets/GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ] ]
+            ]
+
+        -- modal
+        , div
+            [ classes
+                [ "fixed"
+                , if model.modalVisible then
+                    ""
+
+                  else
+                    "hidden"
+                , "z-10"
+                , "w-full"
+                , "h-full"
+                , "left-0"
+                , "top-0"
+                , "p-8"
+                , "flex"
+                , "items-center"
+                , "justify-center"
+                ]
+            , style "background-color" "rgba(0,0,0,0.4)"
+            , attribute "data-testid" "modal"
+            , onClick CloseModal
+            ]
+            [ div
+                [ classes [ "bg-white", "rounded", "flex", "flex-col", "items-center", "justify-center" ] ]
+                [ decompositionImages model.modalChar
+                , decompositionCodes (chineseToParts model.quickMapping False model.modalChar |> Tuple.second)
+                ]
             ]
         ]
     }
@@ -482,9 +533,32 @@ topButton active content extraHtmlAttributes =
 
 charBox : Char -> String -> Html Msg
 charBox chineseWord parts =
-    div [ classes [ "flex", "flex-col", "items-center", "mx-1", "mb-2" ]
+    let
+        hasParts =
+            String.length parts > 0
+    in
+    div
+        [ classes
+            [ "flex"
+            , "flex-col"
+            , "items-center"
+            , "mx-1"
+            , "mb-2"
+            , if hasParts then
+                "cursor-pointer"
+
+              else
+                ""
+            ]
         , attribute "data-testid" "char-box"
-        , attribute "data-box-char" (String.fromChar chineseWord) 
+        , attribute "data-box-char" (String.fromChar chineseWord)
+        , onClick
+            (if hasParts then
+                OpenModal chineseWord
+
+             else
+                NoOp
+            )
         ]
         [ div [ classes [ "flex", "flex-row", "text-2xl", "leading-8" ] ] [ text (String.fromChar chineseWord) ]
         , div [ classes [ "flex", "flex-row", "text-xs", "text-gray-500" ] ] [ text parts ]
@@ -511,6 +585,56 @@ historyEntry str extraAttributes =
             extraAttributes
         )
         [ text str ]
+
+
+decompositionImages : Char -> Html Msg
+decompositionImages char =
+    div
+        [ classes [ "relative", "mt-12" ], style "width" "270px", style "height" "192px" ]
+        [ img [ src ("static/chars/" ++ String.fromChar char ++ "/part_0.svg"), classes [ "w-full", "h-auto", "absolute", "opacity-10" ] ] []
+        , img [ src ("static/chars/" ++ String.fromChar char ++ "/part_1.svg"), classes [ "w-full", "h-auto", "absolute" ], getColorFilter 0 ] []
+        , img [ src ("static/chars/" ++ String.fromChar char ++ "/part_2.svg"), classes [ "w-full", "h-auto", "absolute" ], getColorFilter 1 ] []
+        , img [ src ("static/chars/" ++ String.fromChar char ++ "/part_3.svg"), classes [ "w-full", "h-auto", "absolute" ], getColorFilter 2 ] []
+        , img [ src ("static/chars/" ++ String.fromChar char ++ "/part_4.svg"), classes [ "w-full", "h-auto", "absolute" ], getColorFilter 3 ] []
+        , img [ src ("static/chars/" ++ String.fromChar char ++ "/part_5.svg"), classes [ "w-full", "h-auto", "absolute" ], getColorFilter 4 ] []
+        ]
+
+
+decompositionCodes : String -> Html Msg
+decompositionCodes parts =
+    let
+        chars =
+            String.split "" parts
+    in
+    div
+        [ classes [ "flex", "justify-center", "items-center" ] ]
+        (List.indexedMap (\i s -> div [ classes [ "text-2xl", "mt-4", "mb-12", "mx-2" ], style "color" (getColor i) ] [ text s ]) chars)
+
+
+getColor i =
+    colors |> Array.fromList |> Array.get i |> Maybe.withDefault blue
+
+
+colors =
+    [ blue
+    , red
+    , green2
+    , orange
+    , green1
+    ]
+
+
+getColorFilter i =
+    colorFilters |> Array.fromList |> Array.get i |> Maybe.withDefault blueFilterStyle
+
+
+colorFilters =
+    [ blueFilterStyle
+    , redFilterStyle
+    , green2FilterStyle
+    , orangeFilterStyle
+    , green1FilterStyle
+    ]
 
 
 classes : List String -> Attribute msg
