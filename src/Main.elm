@@ -343,11 +343,6 @@ view model =
         , div
             [ classes
                 [ "fixed"
-                , if model.modalVisible then
-                    ""
-
-                  else
-                    "hidden"
                 , "z-10"
                 , "w-full"
                 , "h-full"
@@ -358,12 +353,33 @@ view model =
                 , "items-center"
                 , "justify-center"
                 ]
+            , classes
+                (if model.modalVisible then
+                    []
+
+                 else
+                    [ "pointer-events-none", "opacity-0" ]
+                )
             , style "background-color" "rgba(0,0,0,0.4)"
+            , style "transition" "opacity 0.15s ease"
             , attribute "data-testid" "modal"
             , onClick CloseModal
             ]
             [ div
-                [ classes [ "bg-white", "rounded", "flex", "flex-col", "items-center", "justify-center" ] ]
+                [ classes
+                    [ if model.modalVisible then
+                        ""
+
+                      else
+                        "hidden"
+                    , "bg-white"
+                    , "rounded"
+                    , "flex"
+                    , "flex-col"
+                    , "items-center"
+                    , "justify-center"
+                    ]
+                ]
                 [ decompositionImages model.modalChar
                 , decompositionCodes (chineseToParts model.quickMapping False model.modalChar |> Tuple.second)
                 ]
@@ -539,17 +555,19 @@ charBox chineseWord parts =
     in
     div
         [ classes
-            [ "flex"
-            , "flex-col"
-            , "items-center"
-            , "mx-1"
-            , "mb-2"
-            , if hasParts then
-                "cursor-pointer"
+            ([ "flex"
+             , "flex-col"
+             , "items-center"
+             , "mx-1"
+             , "mb-2"
+             ]
+                ++ (if hasParts then
+                        [ "cursor-pointer", "hover:bg-yellow-200" ]
 
-              else
-                ""
-            ]
+                    else
+                        []
+                   )
+            )
         , attribute "data-testid" "char-box"
         , attribute "data-box-char" (String.fromChar chineseWord)
         , onClick
