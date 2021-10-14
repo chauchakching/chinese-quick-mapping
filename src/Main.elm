@@ -365,7 +365,7 @@ view model =
             , attribute "data-testid" "modal"
             , onClick CloseModal
             ]
-            [ div
+            [ button
                 [ classes
                     [ if model.modalVisible then
                         ""
@@ -552,8 +552,15 @@ charBox chineseWord parts =
     let
         hasParts =
             String.length parts > 0
+
+        dom =
+            if hasParts then
+                button
+
+            else
+                div
     in
-    div
+    dom
         [ classes
             ([ "flex"
              , "flex-col"
@@ -562,7 +569,7 @@ charBox chineseWord parts =
              , "mb-2"
              ]
                 ++ (if hasParts then
-                        [ "cursor-pointer", "hover:bg-yellow-200" ]
+                        [ "hover:bg-yellow-200" ]
 
                     else
                         []
