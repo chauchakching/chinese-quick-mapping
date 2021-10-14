@@ -629,10 +629,12 @@ decompositionCodes parts =
         (List.indexedMap (\i s -> div [ classes [ "text-2xl", "mt-4", "mb-12", "mx-2" ], style "color" (getColor i) ] [ text s ]) chars)
 
 
+getColor : Int -> String
 getColor i =
     colors |> Array.fromList |> Array.get i |> Maybe.withDefault blue
 
 
+colors : List String
 colors =
     [ blue
     , red
@@ -642,10 +644,12 @@ colors =
     ]
 
 
+getColorFilter : Int -> Attribute msg
 getColorFilter i =
     colorFilters |> Array.fromList |> Array.get i |> Maybe.withDefault blueFilterStyle
 
 
+colorFilters : List (Attribute msg)
 colorFilters =
     [ blueFilterStyle
     , redFilterStyle
