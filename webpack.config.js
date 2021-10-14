@@ -16,6 +16,7 @@ module.exports = {
       patterns: [
         { from: 'src/assets', to: 'assets' },
         { from: 'src/public', to: '.' },
+        ...(process.env.NODE_ENV === 'production' ? [{ from: 'static', to: 'static' }] : []),
       ],
     }),
     new WorkboxPlugin.GenerateSW({
