@@ -90,7 +90,11 @@ module.exports = {
   },
 
   devServer: {
-    inline: true,
-    stats: 'errors-only'
+    client: {
+      overlay: {
+        errors: true,
+        warnings: false,
+      }
+    }
   }
 }
