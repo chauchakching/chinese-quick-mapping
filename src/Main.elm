@@ -296,6 +296,7 @@ view model =
                             [ classes
                                 [ "flex-1"
                                 , "p-2"
+                                , "pb-12"
                                 , "border-l"
                                 , "border-r"
                                 , "border-b"
@@ -310,13 +311,33 @@ view model =
                                 , "flex-wrap"
                                 , "bg-white"
                                 , "shadow-md"
+                                , "relative"
                                 ]
                             , attribute "data-testid" "char-box-container"
                             ]
-                            (model.content
+                            ((model.content
                                 |> String.toList
                                 |> List.map
                                     (chineseToParts model.quickMapping model.quick >> (\( ch, parts ) -> charBox ch parts))
+                             )
+                                ++ (if String.length model.content > 0 then
+                                        [ div
+                                            [ classes
+                                                [ "absolute"
+                                                , "bottom-0"
+                                                , "left-0"
+                                                , "flex"
+                                                , "justify-center"
+                                                , "items-center"
+                                                , "w-full"
+                                                ]
+                                            ]
+                                            [ newFeatureNoticeBlock "點擊字查看倉頡拆碼" ]
+                                        ]
+
+                                    else
+                                        []
+                                   )
                             )
                         ]
                     ]
@@ -634,6 +655,38 @@ decompositionCodes parts =
     div
         [ classes [ "flex", "justify-center", "items-center" ] ]
         (List.indexedMap (\i s -> div [ classes [ "text-2xl", "mt-4", "mb-12", "mx-2" ], style "color" (getColor i) ] [ text s ]) chars)
+
+
+newFeatureNoticeBlock : String -> Html Msg
+newFeatureNoticeBlock str =
+    div
+        [ classes
+            [ "relative"
+            , "flex"
+            , "justify-center"
+            , "rounded-md"
+            , "bg-gray-100"
+            , "px-4"
+            , "py-1"
+            , "mb-3"
+            , "mx-3"
+            , "w-full"
+            , "text-sm"
+            , "text-gray-500"
+            ]
+        ]
+        [ pingSpot
+        , text str
+        ]
+
+
+pingSpot : Html Msg
+pingSpot =
+    span
+        [ classes [ "flex", "h-2", "w-2", "absolute", "top-0", "right-0", "-mt-1", "-mr-1" ] ]
+        [ span [ classes [ "absolute", "animate-ping", "inline-flex", "h-full", "w-full", "rounded-full", "bg-yellow-200", "opacity-75" ] ] []
+        , span [ classes [ "relative", "inline-flex", "rounded-full", "h-2", "w-2", "bg-yellow-300" ] ] []
+        ]
 
 
 getColor : Int -> String
