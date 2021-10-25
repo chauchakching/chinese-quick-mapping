@@ -295,8 +295,9 @@ view model =
                         , div
                             [ classes
                                 [ "flex-1"
-                                , "p-2"
-                                , "pb-12"
+                                , "px-2"
+                                , "pt-3"
+                                , "pb-1"
                                 , "border-l"
                                 , "border-r"
                                 , "border-b"
@@ -315,29 +316,10 @@ view model =
                                 ]
                             , attribute "data-testid" "char-box-container"
                             ]
-                            ((model.content
+                            (model.content
                                 |> String.toList
                                 |> List.map
                                     (chineseToParts model.quickMapping model.quick >> (\( ch, parts ) -> charBox ch parts))
-                             )
-                                ++ (if String.length model.content > 0 then
-                                        [ div
-                                            [ classes
-                                                [ "absolute"
-                                                , "bottom-0"
-                                                , "left-0"
-                                                , "flex"
-                                                , "justify-center"
-                                                , "items-center"
-                                                , "w-full"
-                                                ]
-                                            ]
-                                            [ newFeatureNoticeBlock "點擊字查看倉頡拆碼" ]
-                                        ]
-
-                                    else
-                                        []
-                                   )
                             )
                         ]
                     ]
@@ -529,6 +511,7 @@ clearButton content extraHtmlAttributes =
                     , "text-white"
                     , "text-blue-500"
                     , "hover:bg-gray-200"
+                    , "shadow"
                     ]
                 ]
                 extraHtmlAttributes
@@ -545,12 +528,13 @@ topButton active content extraHtmlAttributes =
                     [ "text-center"
                     , "block"
                     , "border"
-                    , "border-blue-500"
+                    , "border-blue-300"
 
                     -- , "rounded"
                     , "py-1"
                     , "px-4"
                     , "text-white"
+                    , "shadow"
                     ]
                 , classList
                     [ ( "bg-blue-500", active )
@@ -583,19 +567,20 @@ charBox chineseWord parts =
     in
     dom
         [ classes
-            ([ "flex"
-             , "flex-col"
-             , "items-center"
-             , "mx-1"
-             , "mb-2"
-             ]
-                ++ (if hasParts then
-                        [ "hover:bg-yellow-200" ]
-
-                    else
-                        []
-                   )
-            )
+            [ "flex"
+            , "flex-col"
+            , "items-center"
+            , "mx-1"
+            , "mb-2"
+            , "px-2.5"
+            , "py-1.5"
+            ]
+        , classList
+            [ ( "hover:bg-gray-100", hasParts )
+            , ( "border", hasParts )
+            , ( "rounded-lg", hasParts )
+            , ( "shadow-sm", hasParts )
+            ]
         , attribute "data-testid" "char-box"
         , attribute "data-box-char" (String.fromChar chineseWord)
         , onClick
@@ -655,39 +640,6 @@ decompositionCodes parts =
     div
         [ classes [ "flex", "justify-center", "items-center" ] ]
         (List.indexedMap (\i s -> div [ classes [ "text-2xl", "mt-4", "mb-12", "mx-2" ], style "color" (getColor i) ] [ text s ]) chars)
-
-
-newFeatureNoticeBlock : String -> Html Msg
-newFeatureNoticeBlock str =
-    div
-        [ classes
-            [ "relative"
-            , "flex"
-            , "justify-center"
-            , "rounded-md"
-            , "bg-gray-100"
-            , "px-4"
-            , "py-1"
-            , "mb-3"
-            , "mx-3"
-            , "w-full"
-            , "text-sm"
-            , "text-gray-500"
-            ]
-        ]
-        [ pingSpot
-        , text str
-        ]
-
-
-pingSpot : Html Msg
-pingSpot =
-    span
-        [ classes [ "flex", "h-2", "w-2", "absolute", "top-0", "right-0", "-mt-1", "-mr-1" ] ]
-        [ span [ classes [ "absolute", "animate-ping", "inline-flex", "h-full", "w-full", "rounded-full", "bg-yellow-200", "opacity-75" ] ] []
-        , span [ classes [ "relative", "inline-flex", "rounded-full", "h-2", "w-2", "bg-yellow-300" ] ] []
-        ]
-
 
 getColor : Int -> String
 getColor i =
