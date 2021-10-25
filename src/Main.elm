@@ -254,7 +254,7 @@ view : Model -> Document Msg
 view model =
     { title = "速成查字"
     , body =
-        [ div [ classes [ "container", "mx-auto", "px-4", "max-w-5xl", "h-screen", "flex", "flex-col", "justify-between" ] ]
+        [ div [ classes [ "container", "mx-auto", "px-4", "h-screen", "flex", "flex-col", "justify-between" ], style "max-width" "60rem" ]
             [ div []
                 -- head
                 [ div []
