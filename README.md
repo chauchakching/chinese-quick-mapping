@@ -14,14 +14,22 @@ https://chauchakching.github.io/chinese-quick-mapping/
 
 ## Getting Started
 
-1. Install prerequisites
-2. `yarn`
-3. `yarn dev`
+```bash
+# install dependencies
+yarn
+
+# start dev server
+yarn dev
+```
+
+A dev server will be started on `localhost:8080`
+
+## Running Cypress tests
+
+After dev server started, run `yarn cypress run` to run tests in terminal, or `yarn cypress open` to open the test runner
 
 ### Build
 
 ```sh
 yarn build
 ```
-
-A dev server will be started on `localhost:8080`
