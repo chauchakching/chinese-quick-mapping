@@ -28,7 +28,7 @@ A dev server will be started on `localhost:8080`
 
 After dev server started, run `yarn cypress run` to run tests in terminal, or `yarn cypress open` to open the test runner
 
-### Build
+## Build
 
 ```sh
 yarn build
