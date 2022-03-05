@@ -9,7 +9,7 @@ import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
 import Colors exposing (blue, blueFilterStyle, green1, green1FilterStyle, green2, green2FilterStyle, orange, orangeFilterStyle, red, redFilterStyle)
 import Dict exposing (Dict)
-import Html exposing (Attribute, Html, a, br, button, div, h1, h2, img, p, span, text, textarea)
+import Html exposing (Attribute, Html, a, br, button, div, figcaption, figure, footer, h1, h2, header, img, main_, p, span, text, textarea)
 import Html.Attributes exposing (attribute, class, classList, href, placeholder, rows, src, style, value)
 import Html.Events exposing (onClick, onInput)
 import Http
@@ -270,9 +270,9 @@ view model =
     { title = "速成查字"
     , body =
         [ div [ classes [ "container", "mx-auto", "px-4", "h-screen", "flex", "flex-col", "justify-between" ], style "max-width" "60rem" ]
-            [ div []
+            [ main_ []
                 -- head
-                [ div []
+                [ header []
                     [ h1 [ classes [ "text-5xl", "text-gray-900", "text-center", "pt-12", "pb-8", "sm:pt-24", "sm:pb-16" ] ] [ text "速成查字" ] ]
 
                 -- buttons
@@ -352,7 +352,7 @@ view model =
                 ]
 
             -- footer
-            , div
+            , footer
                 [ classes [ "py-4", "flex", "flex-row", "items-center" ] ]
                 [ div [ classes [ "flex-1" ] ] [ button [ classes [ "text-sm", "opacity-60", "cursor-pointer" ], onClick OpenAboutUsModal ] [ text "關於速成查字" ] ]
                 , a [ href repoHref ] [ img [ src "assets/GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ]
@@ -658,7 +658,7 @@ historyEntry str extraAttributes =
 
 decompositionImages : Char -> Html Msg
 decompositionImages char =
-    div
+    figure
         [ classes [ "relative", "mt-12" ], style "width" "270px", style "height" "192px" ]
         [ img [ src ("static/chars/" ++ String.fromChar char ++ "/part_0.svg"), classes [ "w-full", "h-auto", "absolute", "opacity-10" ] ] []
         , img [ src ("static/chars/" ++ String.fromChar char ++ "/part_1.svg"), classes [ "w-full", "h-auto", "absolute" ], getColorFilter 0 ] []
@@ -675,7 +675,7 @@ decompositionCodes parts =
         chars =
             String.split "" parts
     in
-    div
+    figcaption
         [ classes [ "flex", "justify-center", "items-center" ] ]
         (List.indexedMap (\i s -> div [ classes [ "text-2xl", "mt-4", "mb-12", "mx-2" ], style "color" (getColor i) ] [ text s ]) chars)
 
