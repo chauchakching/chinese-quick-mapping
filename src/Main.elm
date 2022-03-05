@@ -9,7 +9,7 @@ import Browser.Dom exposing (focus)
 import Browser.Navigation exposing (Key, load, pushUrl)
 import Colors exposing (blue, blueFilterStyle, green1, green1FilterStyle, green2, green2FilterStyle, orange, orangeFilterStyle, red, redFilterStyle)
 import Dict exposing (Dict)
-import Html exposing (Attribute, Html, a, button, div, h1, img, span, text, textarea)
+import Html exposing (Attribute, Html, a, br, button, div, h1, h2, img, p, span, text, textarea)
 import Html.Attributes exposing (attribute, class, classList, href, placeholder, rows, src, style, value)
 import Html.Events exposing (onClick, onInput)
 import Http
@@ -58,7 +58,8 @@ type Msg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | GotQuickMapping (Result Http.Error QuickMapping)
-    | OpenModal Char
+    | OpenCharDecompModal Char
+    | OpenAboutUsModal
     | CloseModal
 
 
@@ -66,16 +67,26 @@ type alias QuickMapping =
     Dict String String
 
 
+type ModalViewCase
+    = CharDecompView
+    | AboutUsView
+
+
 type alias Model =
     { key : Key
     , url : Url
     , count : Int
+
+    -- to convert texts to quick or cangjie codes
     , quick : Bool
+
+    -- user's input for conversion
     , content : String
     , inputHistory : InputHistory
     , quickMapping : QuickMapping
     , modalVisible : Bool
     , modalChar : Char
+    , modalViewCase : ModalViewCase
     }
 
 
@@ -131,6 +142,7 @@ init flags url key =
       , quickMapping = decodedFlags.quickMapping
       , modalVisible = False
       , modalChar = '速'
+      , modalViewCase = CharDecompView
       }
     , Cmd.batch [ focusTextarea, fetchQuickMapping ]
     )
@@ -181,8 +193,11 @@ update msg model =
                 Err _ ->
                     ( { model | quickMapping = Dict.empty }, Cmd.none )
 
-        OpenModal char ->
-            ( { model | modalVisible = True, modalChar = char }, Cmd.none )
+        OpenCharDecompModal char ->
+            ( { model | modalVisible = True, modalChar = char, modalViewCase = CharDecompView }, Cmd.none )
+
+        OpenAboutUsModal ->
+            ( { model | modalVisible = True, modalViewCase = AboutUsView }, Cmd.none )
 
         CloseModal ->
             ( { model | modalVisible = False }, Cmd.none )
@@ -338,8 +353,10 @@ view model =
 
             -- footer
             , div
-                [ classes [ "self-end", "py-4", "flex", "flex-row", "items-center" ] ]
-                [ a [ href repoHref ] [ img [ src "assets/GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ] ]
+                [ classes [ "py-4", "flex", "flex-row", "items-center" ] ]
+                [ div [ classes [ "flex-1" ] ] [ button [ classes [ "text-sm", "opacity-60", "cursor-pointer" ], onClick OpenAboutUsModal ] [ text "關於速成查字" ] ]
+                , a [ href repoHref ] [ img [ src "assets/GitHub-Mark-64px.png", classes [ "h-8" ] ] [] ]
+                ]
             ]
 
         -- modal
@@ -383,12 +400,33 @@ view model =
                     , "justify-center"
                     ]
                 ]
-                [ decompositionImages model.modalChar
-                , decompositionCodes (chineseToParts model.quickMapping False model.modalChar |> Tuple.second)
-                ]
+                (viewModal model)
             ]
         ]
     }
+
+
+viewModal : Model -> List (Html Msg)
+viewModal model =
+    case model.modalViewCase of
+        CharDecompView ->
+            [ decompositionImages model.modalChar
+            , decompositionCodes (chineseToParts model.quickMapping False model.modalChar |> Tuple.second)
+            ]
+
+        AboutUsView ->
+            [ div [ classes [ "p-8", "w-full", "max-w-lg", "text-left" ] ]
+                [ h2 [ classes [ "text-center", "text-4xl", "font-bold" ] ] [ text "咩黎？" ]
+                , br [] []
+                , p [] [ text "查找中文字嘅速成碼或者倉頡碼。點擊有速成碼嘅字，會顯示字碼拆解圖。" ]
+                , br [] []
+                , p [] [ text "呢個係Single page app，亦唔需要經backend做字碼轉換，所以真係\"超快\"。所有資料同運算都只會喺你部手機／電腦上。" ]
+                , br [] []
+                , p [] [ text "暫時主要係手機上面用。如果喺電腦用嘅話，要輸入中文字係一個有雞先定蛋先嘅問題。" ]
+                , br [] []
+                , p [] [ text "會考慮加入滑鼠寫字功能。" ]
+                ]
+            ]
 
 
 
@@ -585,7 +623,7 @@ charBox chineseWord parts =
         , attribute "data-box-char" (String.fromChar chineseWord)
         , onClick
             (if hasParts then
-                OpenModal chineseWord
+                OpenCharDecompModal chineseWord
 
              else
                 NoOp
@@ -640,6 +678,7 @@ decompositionCodes parts =
     div
         [ classes [ "flex", "justify-center", "items-center" ] ]
         (List.indexedMap (\i s -> div [ classes [ "text-2xl", "mt-4", "mb-12", "mx-2" ], style "color" (getColor i) ] [ text s ]) chars)
+
 
 getColor : Int -> String
 getColor i =
