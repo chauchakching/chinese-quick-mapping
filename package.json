@@ -28,7 +28,7 @@
     "postcss": "8.4.4",
     "postcss-loader": "4.3.0",
     "precss": "^4.0.0",
-    "ramda": "^0.27.1",
+    "ramda": "0.28.0",
     "scrape-brrr": "^1.0.1",
     "style-loader": "^1.2.1",
     "tailwindcss": "2.2.19",
