@@ -30,7 +30,7 @@
     "precss": "^4.0.0",
     "ramda": "0.28.0",
     "scrape-brrr": "^1.0.1",
-    "style-loader": "^1.2.1",
+    "style-loader": "^3.0.0",
     "tailwindcss": "2.2.19",
     "webpack": "4.46.0",
     "webpack-cli": "^3.3.12",
