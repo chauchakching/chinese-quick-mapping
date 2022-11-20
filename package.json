@@ -13,7 +13,7 @@
     "watch-build": "nodemon"
   },
   "devDependencies": {
-    "clean-webpack-plugin": "^3.0.0",
+    "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^6.0.3",
     "cross-env": "^7.0.3",
     "css-loader": "^4.2.2",
